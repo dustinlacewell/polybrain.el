@@ -5,7 +5,7 @@
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "26") (polymode "0") (org-brain "0") (org "0"))
 ;; Keywords: polymode, org, org-brain
-;; URL: http://github.com/dustinlacewell/polybrain
+;; URL: http://github.com/dustinlacewell/polybrain.el
 
 ;;; Commentary:
 
@@ -60,8 +60,6 @@
     (save-buffer)
     (switch-to-buffer (other-buffer (current-buffer) 1))))
 
-(define-key poly-brain-mode-map (kbd "C-x C-s") 'my/org-brain-save)
-
 (defvar my/poly-brain-last-brain-point nil)
 (defvar my/poly-brain-last-org-point nil)
 
@@ -78,8 +76,6 @@
       (if my/poly-brain-last-brain-point
           (goto-char my/poly-brain-last-brain-point)
         (beginning-of-buffer)))))
-
-(define-key poly-brain-mode-map (kbd "<M-tab>") 'my/polymode-next-chunk)
 
 (define-hostmode poly-brain-hostmode
   :mode 'org-brain-visualize-mode)

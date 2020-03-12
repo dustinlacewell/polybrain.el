@@ -80,8 +80,6 @@
       (call-interactively 'kill-region)
       (save-buffer)
       (switch-to-buffer (other-buffer (current-buffer) 1))))
-
-  (define-key poly-brain-mode-map (kbd "C-x C-s") 'my/org-brain-save)
 #+end_src
 
 *** polybrain-switch
@@ -102,8 +100,6 @@
         (if my/poly-brain-last-brain-point
             (goto-char my/poly-brain-last-brain-point)
           (beginning-of-buffer)))))
-
-  (define-key poly-brain-mode-map (kbd "<M-tab>") 'my/polymode-next-chunk)
 #+end_src
 
 ** polymode definitions
