@@ -27,13 +27,13 @@
 ;;   :group 'polybrain
 ;;   :type 'string)
 
-(defun my/org-brain-visualize-setup ()
+(defun polybrain-visualize-setup ()
   (unless poly-brain-mode (poly-brain-mode))
   (setq-local buffer-read-only nil))
 
-(add-hook 'org-brain-visualize-text-hook 'my/org-brain-visualize-setup)
+(add-hook 'org-brain-visualize-text-hook 'polybrain-visualize-setup)
 
-(defun my/org-brain-save ()
+(defun polybrain-save ()
   (interactive)
   (save-excursion
     (beginning-of-buffer)
@@ -60,21 +60,21 @@
     (save-buffer)
     (switch-to-buffer (other-buffer (current-buffer) 1))))
 
-(defvar my/poly-brain-last-brain-point nil)
-(defvar my/poly-brain-last-org-point nil)
+(defvar polybrain-last-brain-point nil)
+(defvar polybrain-last-org-point nil)
 
-(defun my/polymode-next-chunk ()
+(defun polybrain-switch ()
   (interactive)
   (let ((p (point)))
     (if (search-forward "--- Entry" nil t)
         (progn
-          (setq my/poly-brain-last-brain-point p)
-          (if my/poly-brain-last-org-point
-              (goto-char my/poly-brain-last-org-point)
+          (setq polybrain-last-brain-point p)
+          (if polybrain-last-org-point
+              (goto-char polybrain-last-org-point)
             (end-of-line) (forward-char)))
-      (setq my/poly-brain-last-org-point p)
-      (if my/poly-brain-last-brain-point
-          (goto-char my/poly-brain-last-brain-point)
+      (setq polybrain-last-org-point p)
+      (if polybrain-last-brain-point
+          (goto-char polybrain-last-brain-point)
         (beginning-of-buffer)))))
 
 (define-hostmode poly-brain-hostmode
