@@ -11,7 +11,7 @@
   ;; Version: 0.1.0
   ;; Package-Requires: ((emacs "26") (polymode "0") (org-brain "0") (org "0"))
   ;; Keywords: polymode, org, org-brain
-  ;; URL: http://github.com/dustinlacewell/polybrain
+  ;; URL: http://github.com/dustinlacewell/polybrain.el
 
   ;;; Commentary:
 

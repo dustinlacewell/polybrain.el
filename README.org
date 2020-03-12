@@ -9,14 +9,14 @@ Polybrain.el leverages Polymode to improve Org-brain UX
 ** el-get
 #+begin_src emacs-lisp
   (el-get-bundle polybrain
-    :url "https://github.com/dustinlacewell/polybrain.git"
+    :url "https://github.com/dustinlacewell/polybrain.el.git"
     :features polybrain)
 #+end_src
 
 ** straight.el
 #+begin_src emacs-lisp
   (use-package polybrain
-    :straight (polybrain :type git :host github :repo "dustinlacewell/polybrain")
+    :straight (polybrain :type git :host github :repo "dustinlacewell/polybrain.el")
 #+end_src
 
 * Configuration
