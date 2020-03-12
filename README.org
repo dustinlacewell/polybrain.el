@@ -1,0 +1,36 @@
+* Polybrain.el
+
+Polybrain.el leverages Polymode to improve Org-brain UX
+
+- Edit your Org-brain entries from `org-brain-visualize`
+
+* Installation
+
+** el-get
+#+begin_src emacs-lisp
+  (el-get-bundle polybrain
+    :url "https://github.com/dustinlacewell/polybrain.git"
+    :features polybrain)
+#+end_src
+
+** straight.el
+#+begin_src emacs-lisp
+  (use-package polybrain
+    :straight (polybrain :type git :host github :repo "dustinlacewell/polybrain")
+#+end_src
+
+* Configuration
+
+There are no configuration options yet!
+
+* Usage
+
+Simply =(require polybrain)= and it will start working. You should be able to
+edit your Org-brain entries from =org-brain-visualize=.
+
+** polybrain-switch
+Bind this to =poly-brain-mode-map= to switch between Org-brain and Org-mode
+sections of the =org-brain-visualize= buffer.
+
+** polybrain-save
+Bind this to =poly-brain-mode-map= to save edits to the current entry.
