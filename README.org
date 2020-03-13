@@ -4,6 +4,8 @@ Polybrain.el leverages Polymode to improve Org-brain UX
 
 - Edit your Org-brain entries from `org-brain-visualize`
 
+<img src="./polybrain.gif">
+
 * Installation
 
 ** el-get
