@@ -71,23 +71,23 @@
     (save-buffer)
     (switch-to-buffer (other-buffer (current-buffer) 1))))
 
-(defvar polybrain-last-brain-point nil)
-(defvar polybrain-last-org-point nil)
+(lexical-let ((last-brain-point nil)
+              (last-org-point nil))
 
-(defun polybrain-switch ()
-  (interactive)
-  (seq-let (org-min brain-max) (polybrain--get-point-min-max)
-    (let ((p (point)))
-    (if (search-forward "--- Entry" nil t)
-        (progn
-          (setq polybrain-last-brain-point p)
-          (if polybrain-last-org-point
-              (goto-char (max org-min polybrain-last-org-point))
-            (end-of-line) (forward-char)))
-      (setq polybrain-last-org-point p)
-      (if polybrain-last-brain-point
-          (goto-char (floor (min brain-max polybrain-last-brain-point)))
-        (beginning-of-buffer))))))
+  (defun polybrain-switch ()
+    (interactive)
+    (seq-let (org-min brain-max) (polybrain--get-point-min-max)
+      (let ((p (point)))
+        (if (search-forward "--- Entry" nil t)
+            (progn
+              (setq last-brain-point p)
+              (if last-org-point
+                  (goto-char (max org-min last-org-point))
+                (end-of-line) (forward-char)))
+          (setq last-org-point p)
+          (if last-brain-point
+              (goto-char (floor (min brain-max last-brain-point)))
+            (beginning-of-buffer)))))))
 
 (define-hostmode poly-brain-hostmode
   :mode 'org-brain-visualize-mode)
