@@ -33,6 +33,17 @@
 
 (add-hook 'org-brain-visualize-text-hook 'polybrain-visualize-setup)
 
+(defun polybrain--get-point-min-max ()
+  (save-excursion
+    (beginning-of-buffer)
+    (search-forward "--- Entry" nil t)
+    (beginning-of-line)
+    (previous-line)
+    (let ((max (point)))
+      (next-line)
+      (next-line)
+      (list (point) max))))
+
 (defun polybrain-save ()
   (interactive)
   (save-excursion
@@ -65,17 +76,18 @@
 
 (defun polybrain-switch ()
   (interactive)
-  (let ((p (point)))
+  (seq-let (org-min brain-max) (polybrain--get-point-min-max)
+    (let ((p (point)))
     (if (search-forward "--- Entry" nil t)
         (progn
           (setq polybrain-last-brain-point p)
           (if polybrain-last-org-point
-              (goto-char polybrain-last-org-point)
+              (goto-char (max org-min polybrain-last-org-point))
             (end-of-line) (forward-char)))
       (setq polybrain-last-org-point p)
       (if polybrain-last-brain-point
-          (goto-char polybrain-last-brain-point)
-        (beginning-of-buffer)))))
+          (goto-char (floor (min brain-max polybrain-last-brain-point)))
+        (beginning-of-buffer))))))
 
 (define-hostmode poly-brain-hostmode
   :mode 'org-brain-visualize-mode)
