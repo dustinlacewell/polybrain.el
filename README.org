@@ -4,10 +4,7 @@ Polybrain.el leverages Polymode to improve Org-brain UX
 
 - Edit your Org-brain entries from `org-brain-visualize`
 
-![Polybrain](https://github.com/dustinlacewell/polybrain.el/blob/master/polybrain.gif?raw=true)
-
-<img align="left" width="100" height="100" src="http://www.fillmurray.com/100/100">
-
+[[https://github.com/dustinlacewell/polybrain.el/blob/master/polybrain.gif?raw=true]]
 
 * Installation
 
