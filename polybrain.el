@@ -59,10 +59,11 @@
     (beginning-of-buffer)
     (goto-char
      (or (save-excursion
-           (when (re-search-forward org-brain-keyword-regex nil t)
+           (while (and (re-search-forward org-brain-keyword-regex nil t) (org-before-first-heading-p))
              (end-of-line)
              (forward-char)
-             (point)))
+             )
+           (point))
          (point-min)))
     (yank)
     (call-interactively 'set-mark-command)
