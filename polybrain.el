@@ -95,7 +95,7 @@
 (define-innermode poly-brain-org-innermode
   :mode 'org-mode
   :head-matcher "--- Entry.*"
-  :tail-matcher "\'"
+  :tail-matcher "\\'"
   :head-mode 'host
   :tail-mode 'host)
 
