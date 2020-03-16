@@ -31,13 +31,15 @@
     :group 'org)
 #+end_src
 
-*** polybrain-file
+*** polybrain-save-on-switch
 #+begin_src emacs-lisp
-  ;; ;;;###autoload
-  ;; (defcustom polybrain-file (expand-file-name "~/org/bookmarks.org")
-  ;;   "Define polybrain file to store your bookmarks in."
-  ;;   :group 'polybrain
-  ;;   :type 'string)
+  ;;;###autoload
+  (defcustom polybrain-save-on-switch t
+    "Automatically save the current entry
+  anytime (polybrain-switch) is called, or the current entry is
+  changed."
+    :group 'polybrain
+    :type 'string)
 #+end_src
 
 ** boilerplate
@@ -69,52 +71,81 @@
   (defun polybrain-save ()
     (interactive)
     (save-excursion
-      (beginning-of-buffer)
-      (search-forward "--- Entry")
-      (end-of-line)
-      (forward-char)
-      (call-interactively 'set-mark-command)
-      (end-of-buffer)
-      (call-interactively 'kill-ring-save)
-      (deactivate-mark t)
-      (find-file (org-brain-entry-path org-brain--vis-entry))
-      (beginning-of-buffer)
-      (goto-char
-       (or (save-excursion
-             (while (and (re-search-forward org-brain-keyword-regex nil t) (org-before-first-heading-p))
-               (end-of-line)
-               (forward-char)
-               )
-             (point))
-           (point-min)))
-      (yank)
-      (call-interactively 'set-mark-command)
-      (end-of-buffer)
-      (call-interactively 'kill-region)
-      (save-buffer)
-      (switch-to-buffer (other-buffer (current-buffer) 1))))
+      (let ((beg nil)
+            (end nil)
+            (content nil))
+        (beginning-of-buffer)
+        (search-forward "--- Entry")
+        (end-of-line)
+        (forward-char)
+        (setq beg (point))
+        (end-of-buffer)
+        (setq end (point))
+        (setq content (buffer-substring beg end))
+        (find-file (org-brain-entry-path org-brain--vis-entry))
+        (beginning-of-buffer)
+        (goto-char
+         (or (save-excursion
+               (while (and (re-search-forward org-brain-keyword-regex nil t) (org-before-first-heading-p))
+                 (end-of-line)
+                 (forward-char))
+               (point))
+             (point-min)))
+        (insert content)
+        (call-interactively 'set-mark-command)
+        (end-of-buffer)
+        (call-interactively 'kill-region)
+        (save-buffer)
+        (switch-to-buffer (other-buffer (current-buffer) 1)))))
 #+end_src
 
 *** polybrain-switch
 #+begin_src emacs-lisp
-  (let ((last-brain-point nil)
-                (last-org-point nil))
+  (defvar polybrain--last-brain-point nil)
+  (defvar polybrain--last-org-point nil)
 
-    (defun polybrain-switch ()
+  (defun polybrain-switch ()
       (interactive)
+      (when polybrain-save-on-switch
+        (polybrain-save))
       (seq-let (org-min brain-max) (polybrain--get-point-min-max)
         (let ((p (point)))
           (if (search-forward "--- Entry" nil t)
               (progn
-                (setq last-brain-point p)
-                (if last-org-point
-                    (goto-char (max org-min last-org-point))
+                (setq polybrain--last-brain-point p)
+                (if polybrain--last-org-point
+                    (goto-char (max org-min polybrain--last-org-point))
                   (end-of-line) (forward-char)))
-            (setq last-org-point p)
-            (if last-brain-point
-                (goto-char (floor (min brain-max last-brain-point)))
-              (beginning-of-buffer)))))))
+            (setq polybrain--last-org-point p)
+            (if polybrain--last-brain-point
+                (goto-char (floor (min brain-max polybrain--last-brain-point)))
+              (beginning-of-buffer))))))
 
+  (defun polybrain-top ()
+      (interactive)
+      (when polybrain-save-on-switch
+        (polybrain-save))
+      (seq-let (org-min brain-max) (polybrain--get-point-min-max)
+        (unless (< (point) brain-max)
+          (setq polybrain--last-org-point (point))
+          (goto-char (or polybrain--last-brain-point 0)))))
+
+  (defun polybrain-bottom ()
+      (interactive)
+      (when polybrain-save-on-switch
+        (polybrain-save))
+      (seq-let (org-min brain-max) (polybrain--get-point-min-max)
+        (unless (> (point) org-min)
+          (setq polybrain--last-brain-point (point))
+          (goto-char (or polybrain--last-org-point org-min)))))
+
+  (defun polybrain-top-then (cont &optional preserve-point)
+      (if preserve-point
+          (save-excursion
+            (polybrain-top)
+            (call-interactively cont))
+        (polybrain-top)
+        (call-interactively cont)))
 #+end_src
 
 ** polymode definitions
