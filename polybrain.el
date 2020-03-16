@@ -3,7 +3,7 @@
 
 ;; Author: Dustin Lacewell <dlacewell@gmail.com>
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "26") (polymode "0") (org-brain "0") (org "0"))
+;; Package-Requires: ((emacs "26") (polymode "0") (org-brain "0"))
 ;; Keywords: polymode, org, org-brain
 ;; URL: http://github.com/dustinlacewell/polybrain.el
 
@@ -12,7 +12,6 @@
 ;; This package lets you edit your org-brain entries from org-brain-visualize
 
 ;;; Code:
-(require 'cl-lib)
 (require 'polymode)
 (require 'org-brain)
 
@@ -72,7 +71,7 @@
     (save-buffer)
     (switch-to-buffer (other-buffer (current-buffer) 1))))
 
-(lexical-let ((last-brain-point nil)
+(let ((last-brain-point nil)
               (last-org-point nil))
 
   (defun polybrain-switch ()
