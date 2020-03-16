@@ -28,6 +28,13 @@ changed."
   :group 'polybrain
   :type 'string)
 
+;;;###autoload
+(defcustom polybrain-set-title-on-save t
+  "Automatically set the title of the curernt entry to its name,
+  whenever a save happens."
+  :group 'polybrain
+  :type 'boolean)
+
 (defun polybrain-visualize-setup ()
   (unless poly-brain-mode (poly-brain-mode))
   (setq-local buffer-read-only nil))
@@ -72,6 +79,7 @@ changed."
 
 (defun polybrain-save ()
   (interactive)
+  (org-brain-set-title org-brain--vis-entry org-brain--vis-entry)
   (let ((content (polybrain--entry-contents)))
     (polybrain--save-contents content)))
 

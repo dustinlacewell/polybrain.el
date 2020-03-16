@@ -31,7 +31,7 @@
     :group 'org)
 #+end_src
 
-*** polybrain-save-on-switch
+*** npolybrain-save-on-switch
 #+begin_src emacs-lisp
   ;;;###autoload
   (defcustom polybrain-save-on-switch t
@@ -40,6 +40,16 @@
   changed."
     :group 'polybrain
     :type 'string)
+#+end_src
+
+*** polybrain-set-title-on-switch
+#+begin_src emacs-lisp
+  ;;;###autoload
+  (defcustom polybrain-set-title-on-save t
+    "Automatically set the title of the curernt entry to its name,
+    whenever a save happens."
+    :group 'polybrain
+    :type 'boolean)
 #+end_src
 
 ** boilerplate
@@ -102,6 +112,7 @@
 #+begin_src emacs-lisp
   (defun polybrain-save ()
     (interactive)
+    (org-brain-set-title org-brain--vis-entry org-brain--vis-entry)
     (let ((content (polybrain--entry-contents)))
       (polybrain--save-contents content)))
 #+end_src
