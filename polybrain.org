@@ -31,7 +31,7 @@
     :group 'org)
 #+end_src
 
-*** npolybrain-save-on-switch
+*** polybrain-save-on-switch
 #+begin_src emacs-lisp
   ;;;###autoload
   (defcustom polybrain-save-on-switch t
@@ -56,8 +56,7 @@
 *** polybrain-visualize-setup
 #+begin_src emacs-lisp
   (defun polybrain-visualize-setup ()
-    (unless poly-brain-mode (poly-brain-mode))
-    ;(setq-local buffer-read-only nil))
+    (unless poly-brain-mode (poly-brain-mode)))
 
   (add-hook 'org-brain-visualize-text-hook 'polybrain-visualize-setup)
 #+end_src

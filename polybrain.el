@@ -36,8 +36,7 @@ changed."
   :type 'boolean)
 
 (defun polybrain-visualize-setup ()
-  (unless poly-brain-mode (poly-brain-mode))
-  ;(setq-local buffer-read-only nil))
+  (unless poly-brain-mode (poly-brain-mode)))
 
 (add-hook 'org-brain-visualize-text-hook 'polybrain-visualize-setup)
 
