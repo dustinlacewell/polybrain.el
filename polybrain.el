@@ -37,7 +37,7 @@ changed."
 
 (defun polybrain-visualize-setup ()
   (unless poly-brain-mode (poly-brain-mode))
-  (setq-local buffer-read-only nil))
+  ;(setq-local buffer-read-only nil))
 
 (add-hook 'org-brain-visualize-text-hook 'polybrain-visualize-setup)
 
@@ -132,16 +132,30 @@ changed."
 (define-hostmode poly-brain-hostmode
   :mode 'org-brain-visualize-mode)
 
+(defun poly-brain--set-writable () (setq-local buffer-read-only nil))
+
 (define-innermode poly-brain-org-innermode
   :mode 'org-mode
   :head-matcher "--- Entry.*"
   :tail-matcher "\\'"
   :head-mode 'host
-  :tail-mode 'host)
+  :tail-mode 'host
+  :init-functions '(poly-brain--set-writable))
 
 (define-polymode poly-brain-mode
   :hostmode 'poly-brain-hostmode
   :innermodes '(poly-brain-org-innermode))
+
+(defun poly-brain-set-read-only ()
+  (setq-local polymode-move-these-vars-from-old-buffer
+              (delq 'buffer-read-only polymode-move-these-vars-from-old-buffer)))
+
+(add-hook 'poly-brain-mode-hook 'poly-brain-set-read-only)
+
+(defun poly-brain-org-set-read-only ()
+  (setq-local buffer-read-only nil))
+
+(add-hook 'poly-brain-org-innermode-hook 'poly-brain-org-set-read-only)
 
 (provide 'polybrain)
 
