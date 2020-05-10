@@ -3,7 +3,7 @@
 
 ;; Author: Dustin Lacewell <dlacewell@gmail.com>
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "26") (polymode "0") (org-brain "0"))
+;; Package-Requires: ((emacs "26") (polymode "0") (org-brain "0.93"))
 ;; Keywords: polymode, org, org-brain
 ;; URL: http://github.com/dustinlacewell/polybrain.el
 
@@ -41,10 +41,9 @@ changed."
 (add-hook 'org-brain-visualize-text-hook 'polybrain-visualize-setup)
 
 (defun polybrain--get-point-min-max ()
+  "Get `org-mode' min position and `org-brain-visualize' max position."
   (save-excursion
-    (beginning-of-buffer)
-    (search-forward "--- Entry" nil t)
-    (beginning-of-line)
+    (goto-char org-brain--vis-entry-text-marker)
     (previous-line)
     (let ((max (point)))
       (next-line)
@@ -52,81 +51,78 @@ changed."
       (list (point) max))))
 
 (defun polybrain--entry-contents ()
+  "Get text content of the visualized entry."
   (save-excursion
-    (beginning-of-buffer)
-    (search-forward "--- Entry")
+    (goto-char org-brain--vis-entry-text-marker)
     (end-of-line)
-    (forward-char)
-    (let ((beg (point)))
-      (end-of-buffer)
-      (buffer-substring beg (point)))))
+    ;; (forward-char)
+    (buffer-substring (point) (point-max))))
 
 (defun polybrain--save-contents (content)
+  "Replace the entry's text with CONTENT."
   (find-file (org-brain-entry-path org-brain--vis-entry))
-  (beginning-of-buffer)
-  (goto-char
-   (or (save-excursion
-         (while (and (re-search-forward org-brain-keyword-regex nil t) (org-before-first-heading-p))
-           (end-of-line)
-           (forward-char))
-         (point))
-       (point-min)))
-  (insert content)
-  (delete-region (point) (point-max))
-  (save-buffer)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
+  (seq-let (entry-min entry-max) (org-brain-text-positions org-brain--vis-entry)
+    (goto-char entry-min)
+    (delete-region entry-min entry-max)
+    (insert content)
+    (unless (looking-at-p "\n")
+      (insert "\n\n"))
+    (save-buffer)
+    (switch-to-buffer (other-buffer (current-buffer) 1))))
 
 (defun polybrain-save ()
+  "Save entry text content to the entry's file."
   (interactive)
-  (org-brain-set-title org-brain--vis-entry org-brain--vis-entry)
-  (let ((content (polybrain--entry-contents)))
-    (polybrain--save-contents content)))
+  (polybrain--save-contents (polybrain--entry-contents)))
 
 (defvar polybrain--last-brain-point nil)
 (defvar polybrain--last-org-point nil)
 
 (defun polybrain-switch ()
-    (interactive)
-    (when polybrain-save-on-switch
-      (polybrain-save))
-    (seq-let (org-min brain-max) (polybrain--get-point-min-max)
-      (let ((p (point)))
-        (if (search-forward "--- Entry" nil t)
-            (progn
-              (setq polybrain--last-brain-point p)
-              (if polybrain--last-org-point
-                  (goto-char (max org-min polybrain--last-org-point))
-                (end-of-line) (forward-char)))
-          (setq polybrain--last-org-point p)
-          (if polybrain--last-brain-point
-              (goto-char (floor (min brain-max polybrain--last-brain-point)))
-            (beginning-of-buffer))))))
+  "Move `point' between `org-brain-visualize' and `org-mode' content."
+  (interactive)
+  (seq-let (org-min brain-max) (polybrain--get-point-min-max)
+    (let ((p (point)))
+      (if (< p org-brain--vis-entry-text-marker)
+          (progn
+            ;; In case the text has been changed outside org-brain-visualize
+            (revert-buffer)
+            (setq polybrain--last-brain-point p)
+            (if polybrain--last-org-point
+                (goto-char (max org-min polybrain--last-org-point))
+              (goto-char org-brain--vis-entry-text-marker)
+              (end-of-line) (forward-char)))
+        (when polybrain-save-on-switch (polybrain-save))
+        (setq polybrain--last-org-point p)
+        (if polybrain--last-brain-point
+            (goto-char (floor (min brain-max polybrain--last-brain-point)))
+          (beginning-of-buffer))))))
 
 (defun polybrain-top ()
-    (interactive)
-    (when polybrain-save-on-switch
-      (polybrain-save))
-    (seq-let (org-min brain-max) (polybrain--get-point-min-max)
-      (unless (< (point) brain-max)
-        (setq polybrain--last-org-point (point))
-        (goto-char (or polybrain--last-brain-point 0)))))
+  (interactive)
+  (when polybrain-save-on-switch
+    (polybrain-save))
+  (seq-let (org-min brain-max) (polybrain--get-point-min-max)
+    (unless (< (point) brain-max)
+      (setq polybrain--last-org-point (point))
+      (goto-char (or polybrain--last-brain-point 0)))))
 
 (defun polybrain-bottom ()
-    (interactive)
-    (when polybrain-save-on-switch
-      (polybrain-save))
-    (seq-let (org-min brain-max) (polybrain--get-point-min-max)
-      (unless (> (point) org-min)
-        (setq polybrain--last-brain-point (point))
-        (goto-char (or polybrain--last-org-point org-min)))))
+  (interactive)
+  (when polybrain-save-on-switch
+    (polybrain-save))
+  (seq-let (org-min brain-max) (polybrain--get-point-min-max)
+    (unless (> (point) org-min)
+      (setq polybrain--last-brain-point (point))
+      (goto-char (or polybrain--last-org-point org-min)))))
 
 (defun polybrain-top-then (cont &optional preserve-point)
-    (if preserve-point
-        (save-excursion
-          (polybrain-top)
-          (call-interactively cont))
-      (polybrain-top)
-      (call-interactively cont)))
+  (if preserve-point
+      (save-excursion
+        (polybrain-top)
+        (call-interactively cont))
+    (polybrain-top)
+    (call-interactively cont)))
 
 (define-hostmode poly-brain-hostmode
   :mode 'org-brain-visualize-mode)
@@ -135,7 +131,7 @@ changed."
 
 (define-innermode poly-brain-org-innermode
   :mode 'org-mode
-  :head-matcher "--- Entry.*"
+  :head-matcher "^[─-]\\{3\\} Entry [─-]+"
   :tail-matcher "\\'"
   :head-mode 'host
   :tail-mode 'host
